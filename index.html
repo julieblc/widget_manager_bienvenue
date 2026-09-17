@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mon équipe — widget Grist</title>
+<title>Espace manager — widget Grist</title>
 <style>
   /* Marianne — typeface officielle de l'État français, chargée depuis le
      paquet npm réellement publié par La Suite numérique (@gouvfr-lasuite/ui-components),
@@ -178,6 +178,27 @@
     .row .chevron{ display:none; }
     .row .contact{ flex-direction:row; gap:12px; }
   }
+  .colleagues-summary{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+  .colleague-chip{ display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; font-size:12.5px; font-weight:600; background:var(--grey-soft); color:var(--ink); }
+
+  .backdrop{ position:fixed; inset:0; background:rgba(20,20,18,0.45); display:none; align-items:center; justify-content:center; z-index:30; padding:20px; }
+  .backdrop.open{ display:flex; }
+  .colleagues-modal{ background:var(--surface); border-radius:var(--radius-m); max-width:480px; width:100%; max-height:80vh; padding:22px; position:relative; display:flex; flex-direction:column; }
+  .colleagues-modal .close-btn{ position:absolute; top:12px; right:12px; border:none; background:transparent; color:var(--ink-faint); cursor:pointer; width:28px; height:28px; border-radius:var(--radius-s); display:flex; align-items:center; justify-content:center; }
+  .colleagues-modal .close-btn:hover{ background:var(--grey-soft); color:var(--ink); }
+  .colleagues-modal h3{ margin:0 0 4px; font-size:16px; }
+  .colleagues-modal .modal-sub{ color:var(--ink-muted); font-size:12.6px; margin:0 0 14px; }
+  .colleagues-list{ overflow-y:auto; flex:1; margin-bottom:14px; }
+  .cg-group{ border:1px solid var(--line); border-radius:var(--radius-s); margin-bottom:8px; overflow:hidden; }
+  .cg-group summary{ list-style:none; cursor:pointer; padding:9px 12px; display:flex; align-items:center; gap:8px; user-select:none; font-size:13px; font-weight:600; background:var(--paper); }
+  .cg-group summary::-webkit-details-marker{ display:none; }
+  .cg-group summary .chev{ margin-left:auto; color:var(--ink-faint); transition:transform .15s ease; flex:none; }
+  .cg-group[open] summary .chev{ transform:rotate(90deg); }
+  .cg-row{ display:flex; align-items:center; gap:10px; padding:8px 14px; border-top:1px solid var(--line); font-size:13px; cursor:pointer; }
+  .cg-row:hover{ background:var(--paper); }
+  .cg-row .cg-name{ font-weight:600; }
+  .cg-row .cg-role{ color:var(--ink-muted); font-size:12px; }
+  .cg-row input{ width:16px; height:16px; flex:none; accent-color:var(--blue); }
 </style>
 </head>
 <body>
@@ -198,30 +219,10 @@
     <div class="topbar">
       <div>
         <p class="brand">Bienvenue à La Suite — espace manager</p>
-        <h1>Mon équipe</h1>
+        <h1>Espace manager</h1>
         <p class="sub" id="team-sub"></p>
       </div>
-      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
-        <button class="btn primary" id="btn-add">+ Ajouter un membre</button>
-        <button class="btn ghost" id="btn-switch-identity" style="padding:2px 4px; font-size:12px;">Changer d'identité</button>
-      </div>
-    </div>
-
-    <div class="add-form" id="add-form">
-      <h3>Nouveau membre</h3>
-      <div class="add-grid">
-        <div><label>Nom complet</label><input id="af-name" type="text" placeholder="Ex. Yasmine Roche"></div>
-        <div><label>Poste</label><input id="af-role" type="text" placeholder="Ex. Chargée d'études"></div>
-        <div><label>Email</label><input id="af-email" type="text" placeholder="prenom.nom@gouv.fr"></div>
-        <div><label>Téléphone</label><input id="af-phone" type="text" placeholder="01 40 00 00 00"></div>
-        <div><label>Service</label><input id="af-service-label" type="text" disabled style="background:var(--grey-soft);"></div>
-        <div><label>Date d'arrivée</label><input id="af-arrival" type="date"></div>
-        <div style="grid-column:1 / -1"><label>Template d'onboarding <span style="font-weight:400;color:var(--ink-faint)">(suggéré depuis le poste, modifiable)</span></label><select id="af-template"></select></div>
-      </div>
-      <div class="add-actions">
-        <button class="btn ghost" id="af-cancel">Annuler</button>
-        <button class="btn primary" id="af-save">Ajouter à l'équipe</button>
-      </div>
+      <button class="btn ghost" id="btn-switch-identity" style="padding:2px 4px; font-size:12px;">Changer d'identité</button>
     </div>
 
     <div class="controls">
@@ -247,12 +248,18 @@
     <div class="dossier-head" id="dossier-head"></div>
     <div class="grid-2">
       <div><div class="panel" id="panel-checklist"></div></div>
-      <div><div class="panel" id="panel-comments"></div></div>
+      <div>
+        <div class="panel" id="panel-comments"></div>
+        <div class="panel" id="panel-colleagues"></div>
+      </div>
     </div>
   </div>
 
 </div>
 <div class="toast" id="toast"></div>
+<div class="backdrop" id="colleagues-backdrop">
+  <div class="colleagues-modal" id="colleagues-modal-content"></div>
+</div>
 
 <script>
 (function(){
@@ -358,20 +365,8 @@
     });
     return fromTemplate.concat(custom);
   }
-  /* Suggère un template à partir du texte du poste : les templates sont testés
-     par ordre de Priority (les plus spécifiques en premier), et celui sans
-     mot-clé (Socle commun) sert de repli. */
-  function suggestTemplate(role){
-    var text = (role || "").toLowerCase();
-    var withKeywords = TEMPLATES.filter(function(t){ return t.MatchKeywords && t.MatchKeywords.trim() !== ""; })
-      .sort(function(a,b){ return (a.Priority||99) - (b.Priority||99); });
-    for (var i=0;i<withKeywords.length;i++){
-      var kws = withKeywords[i].MatchKeywords.split(",").map(function(s){ return s.trim().toLowerCase(); }).filter(Boolean);
-      if (kws.some(function(k){ return text.indexOf(k) > -1; })) return withKeywords[i].id;
-    }
-    var fallback = TEMPLATES.filter(function(t){ return !t.MatchKeywords || t.MatchKeywords.trim() === ""; })[0];
-    return fallback ? fallback.id : (TEMPLATES[0] && TEMPLATES[0].id);
-  }
+  /* Le rapprochement Service → Template se fait désormais côté Grist
+     (formule trigger sur Members.Template) — plus besoin de le refaire ici. */
   /* Change le template d'un membre : conserve l'état "fait" des étapes communes
      aux deux templates (comparées par libellé), ajoute les nouvelles étapes,
      retire celles qui n'appartiennent plus au template choisi. */
@@ -499,57 +494,6 @@
   }
 
   document.getElementById("search-input").addEventListener("input", function(e){ searchQuery = e.target.value; renderRows(); });
-
-  /* ---------------- Add member ---------------- */
-
-  var addForm = document.getElementById("add-form");
-  var tplManuallySet = false;
-  document.getElementById("btn-add").addEventListener("click", function(){
-    var svc = serviceById(MY_SERVICE_ID);
-    document.getElementById("af-service-label").value = svc ? svc.Name : "";
-    var tplSel = document.getElementById("af-template");
-    tplSel.innerHTML = TEMPLATES.map(function(t){ return '<option value="' + t.id + '">' + t.Name + '</option>'; }).join("");
-    tplManuallySet = false;
-    addForm.classList.add("open");
-  });
-  document.getElementById("af-role").addEventListener("input", function(e){
-    if (tplManuallySet) return;
-    document.getElementById("af-template").value = String(suggestTemplate(e.target.value));
-  });
-  document.getElementById("af-template").addEventListener("change", function(){ tplManuallySet = true; });
-  document.getElementById("af-cancel").addEventListener("click", function(){ addForm.classList.remove("open"); });
-  document.getElementById("af-save").addEventListener("click", async function(){
-    var name = document.getElementById("af-name").value.trim();
-    var role = document.getElementById("af-role").value.trim();
-    var email = document.getElementById("af-email").value.trim();
-    var phone = document.getElementById("af-phone").value.trim();
-    var service = MY_SERVICE_ID;
-    var template = Number(document.getElementById("af-template").value);
-    var arrival = dateInputToGrist(document.getElementById("af-arrival").value) || todayUTCSeconds();
-    if (!name){ toast("Le nom est obligatoire"); return; }
-
-    var btn = document.getElementById("af-save");
-    btn.disabled = true;
-    try{
-      var addResult = await grist.docApi.applyUserActions([
-        ["AddRecord", "Members", null, { Name:name, Role:role, Email:email, Phone:phone, Service:service, Template:template, ArrivalDate:arrival, DepartureDate:null }]
-      ]);
-      var newId = addResult.retValues[0];
-      var checklistActions = templateItems(template).map(function(item){
-        return ["AddRecord", "MemberChecklist", null, { Member:newId, Item:item.id, Done:false, DoneAt:null }];
-      });
-      await grist.docApi.applyUserActions(checklistActions);
-      await loadAll();
-      addForm.classList.remove("open");
-      tplManuallySet = false;
-      ["af-name","af-role","af-email","af-phone","af-arrival"].forEach(function(id){ document.getElementById(id).value=""; });
-      renderRows();
-      toast(name + " a été ajouté·e à l'équipe");
-    }catch(err){
-      toast("Erreur lors de l'ajout — réessayez");
-    }
-    btn.disabled = false;
-  });
 
   /* ---------------- Detail view ---------------- */
 
@@ -711,7 +655,83 @@
       }
       btn.disabled = false;
     });
+    var colleaguesPanel = document.getElementById("panel-colleagues");
+    var colleagueIds = refListIds(m.ColleaguesToMeet);
+    var colleagueMembers = MEMBERS.filter(function(x){ return colleagueIds.indexOf(x.id) > -1; });
+    colleaguesPanel.innerHTML =
+      '<h3>Personnes à rencontrer</h3>' +
+      '<p class="panel-sub">Collègues à présenter à ' + m.Name.split(" ")[0] + ' pendant son arrivée.</p>' +
+      '<div class="colleagues-summary" id="colleagues-summary"></div>' +
+      '<button class="btn" id="btn-edit-colleagues">' + (colleagueMembers.length ? "Modifier la sélection" : "+ Choisir des collègues") + '</button>';
+    var summaryEl = colleaguesPanel.querySelector("#colleagues-summary");
+    summaryEl.innerHTML = colleagueMembers.length
+      ? colleagueMembers.map(function(c){ return '<span class="colleague-chip">' + c.Name + (c.Role ? " · " + c.Role : "") + '</span>'; }).join("")
+      : '<p style="color:var(--ink-faint);font-size:13px;margin:0 0 10px;">Aucun collègue sélectionné pour le moment.</p>';
+    colleaguesPanel.querySelector("#btn-edit-colleagues").addEventListener("click", function(){ openColleaguesModal(m.id); });
   }
+
+  /* ---------------- Personnes à rencontrer (sélection par accordéon) ---------------- */
+
+  function refListIds(val){
+    if (!val) return [];
+    if (Array.isArray(val)) return val[0] === "L" ? val.slice(1) : val;
+    return [];
+  }
+
+  var colleaguesBackdrop = document.getElementById("colleagues-backdrop");
+  function openColleaguesModal(memberId){
+    var m = MEMBERS.filter(function(x){ return x.id === memberId; })[0];
+    if (!m) return;
+    var selected = refListIds(m.ColleaguesToMeet).slice();
+
+    var groupsHtml = SERVICES.map(function(s){
+      var members = MEMBERS.filter(function(x){ return x.Service === s.id && x.id !== memberId; })
+        .sort(function(a,b){ return (a.LastName||a.Name||"").localeCompare(b.LastName||b.Name||"", "fr"); });
+      if (!members.length) return "";
+      var rows = members.map(function(x){
+        var cid = "cg-" + x.id;
+        return '<label class="cg-row" for="' + cid + '">' +
+          '<input type="checkbox" id="' + cid + '" data-id="' + x.id + '"' + (selected.indexOf(x.id) > -1 ? " checked" : "") + '>' +
+          '<span><span class="cg-name">' + x.Name + '</span>' + (x.Role ? '<span class="cg-role"> · ' + x.Role + '</span>' : '') + '</span>' +
+        '</label>';
+      }).join("");
+      return '<details class="cg-group" open>' +
+        '<summary><div class="svc-badge" style="background:' + s.Color + ';width:20px;height:20px;border-radius:5px;font-size:9px;">' + s.Initials + '</div>' + s.Name +
+          '<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></summary>' +
+        rows +
+      '</details>';
+    }).join("");
+
+    document.getElementById("colleagues-modal-content").innerHTML =
+      '<button class="close-btn" id="cg-close" aria-label="Fermer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' +
+      '<h3>Personnes à rencontrer</h3>' +
+      '<p class="modal-sub">Coche les collègues à présenter à ' + m.Name.split(" ")[0] + '.</p>' +
+      '<div class="colleagues-list">' + (groupsHtml || '<p style="color:var(--ink-faint);font-size:13px;">Aucun autre agent dans l\'équipe pour l\'instant.</p>') + '</div>' +
+      '<div class="add-actions"><button class="btn ghost" id="cg-cancel">Annuler</button><button class="btn primary" id="cg-save">Enregistrer</button></div>';
+
+    document.getElementById("cg-close").addEventListener("click", closeColleaguesModal);
+    document.getElementById("cg-cancel").addEventListener("click", closeColleaguesModal);
+    document.getElementById("cg-save").addEventListener("click", async function(){
+      var btn = document.getElementById("cg-save");
+      btn.disabled = true;
+      var checked = Array.prototype.slice.call(document.querySelectorAll("#colleagues-modal-content input[type=checkbox]:checked"))
+        .map(function(input){ return Number(input.getAttribute("data-id")); });
+      try{
+        await grist.docApi.applyUserActions([["UpdateRecord","Members", memberId, { ColleaguesToMeet: checked }]]);
+        await loadAll();
+        renderDetail(memberId);
+        closeColleaguesModal();
+        toast("Sélection enregistrée");
+      }catch(err){
+        toast("Échec de l'enregistrement — réessayez");
+        btn.disabled = false;
+      }
+    });
+    colleaguesBackdrop.classList.add("open");
+  }
+  function closeColleaguesModal(){ colleaguesBackdrop.classList.remove("open"); }
+  colleaguesBackdrop.addEventListener("click", function(e){ if (e.target === colleaguesBackdrop) closeColleaguesModal(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeColleaguesModal(); });
 
   /* ---------------- Identité (manager ↔ service, mémorisée localement) ---------------- */
 
@@ -765,7 +785,7 @@
   async function init(){
     try{
       await loadGristScript();
-      grist.ready({ requiredAccess: "full", name: "Mon équipe" });
+      grist.ready({ requiredAccess: "full", name: "Espace manager" });
       await loadAll();
       document.getElementById("view-loading").style.display = "none";
 
