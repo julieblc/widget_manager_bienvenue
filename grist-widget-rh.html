@@ -81,6 +81,24 @@
   .prog-fill{ height:100%; border-radius:999px; background:var(--green); }
   .prog-pct{ font-size:11.5px; font-weight:700; color:var(--ink-muted); width:32px; text-align:right; flex:none; }
 
+  .view-btn{ border:1px solid var(--line-strong); background:var(--surface); color:var(--ink-muted); width:28px; height:28px; border-radius:var(--radius-s); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .view-btn:hover{ border-color:var(--blue); color:var(--blue); }
+
+  .backdrop{ position:fixed; inset:0; background:rgba(20,20,18,0.45); display:none; align-items:center; justify-content:center; z-index:30; padding:20px; }
+  .backdrop.open{ display:flex; }
+  .id-card{ background:var(--surface); border-radius:var(--radius-m); max-width:380px; width:100%; padding:24px; position:relative; }
+  .id-card .close-btn{ position:absolute; top:12px; right:12px; border:none; background:transparent; color:var(--ink-faint); cursor:pointer; width:28px; height:28px; border-radius:var(--radius-s); display:flex; align-items:center; justify-content:center; }
+  .id-card .close-btn:hover{ background:var(--grey-soft); color:var(--ink); }
+  .id-avatar{ width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; color:#fff; margin-bottom:12px; }
+  .id-card h2{ margin:0 0 2px; font-size:19px; font-weight:700; }
+  .id-role{ color:var(--ink-muted); font-size:13.5px; margin-bottom:14px; }
+  .id-field{ display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px solid var(--line); font-size:13px; }
+  .id-field:first-of-type{ border-top:none; }
+  .id-field .k{ color:var(--ink-faint); }
+  .id-field .v{ font-weight:600; text-align:right; }
+  .id-progress{ margin-top:14px; }
+  .id-progress .lbl{ display:flex; justify-content:space-between; font-size:12px; color:var(--ink-muted); margin-bottom:6px; }
+
   .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(10px); background:var(--ink); color:var(--paper); padding:10px 16px; border-radius:var(--radius-s); font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:20; }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
@@ -139,6 +157,9 @@
 
 </div>
 <div class="toast" id="toast"></div>
+<div class="backdrop" id="id-backdrop">
+  <div class="id-card" id="id-card-content"></div>
+</div>
 
 <script>
 (function(){
@@ -235,8 +256,9 @@
           '<td><input class="cell-input" data-field="Email" value="' + (m.Email||"") + '" placeholder="Email"></td>' +
           '<td><input class="cell-input" data-field="Phone" value="' + (m.Phone||"") + '" placeholder="Téléphone"></td>' +
           '<td><div class="prog-cell"><div class="prog-track"><div class="prog-fill" style="width:' + pct + '%"></div></div><span class="prog-pct">' + pct + '%</span></div></td>' +
+          '<td><button class="view-btn" type="button" aria-label="Voir la fiche de ' + ((m.FirstName||"")+" "+(m.LastName||"")).trim() + '"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></td>' +
         '</tr>';
-      }).join("") : '<tr class="empty-row"><td colspan="6">Aucun agent dans ce service.</td></tr>';
+      }).join("") : '<tr class="empty-row"><td colspan="7">Aucun agent dans ce service.</td></tr>';
 
       group.innerHTML =
         '<summary>' +
@@ -245,7 +267,7 @@
           '<span class="count">' + members.length + ' agent' + (members.length>1?'s':'') + '</span>' +
           '<svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>' +
         '</summary>' +
-        '<table class="roster"><thead><tr><th>Nom</th><th>Prénom</th><th>Poste</th><th>Email</th><th>Téléphone</th><th>Intégration</th></tr></thead>' +
+        '<table class="roster"><thead><tr><th>Nom</th><th>Prénom</th><th>Poste</th><th>Email</th><th>Téléphone</th><th>Intégration</th><th></th></tr></thead>' +
         '<tbody>' + rowsHtml + '</tbody></table>';
 
       group.querySelectorAll("tr[data-member]").forEach(function(tr){
@@ -255,6 +277,8 @@
             saveField(memberId, input.getAttribute("data-field"), input.value.trim());
           });
         });
+        var viewBtn = tr.querySelector(".view-btn");
+        viewBtn.addEventListener("click", function(){ openIdCard(memberId); });
       });
 
       wrap.appendChild(group);
@@ -315,6 +339,49 @@
     }
     btn.disabled = false;
   });
+
+  var MONTHS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  var AVATAR_PALETTE = ["#5B5BD6","#B34700","#197C6A","#A32657","#3E6BC9","#7A5AF8","#B5842A"];
+  function avatarColor(name){
+    var h = 0;
+    for (var i=0;i<(name||"").length;i++) h = (h*31 + name.charCodeAt(i)) >>> 0;
+    return AVATAR_PALETTE[h % AVATAR_PALETTE.length];
+  }
+  function initials(first, last){
+    return ((first||"")[0]||"") .toUpperCase() + ((last||"")[0]||"").toUpperCase() || "?";
+  }
+  function formatGristDate(sec){
+    if (sec === null || sec === undefined) return "—";
+    var d = new Date(sec * 1000);
+    return d.getUTCDate() + " " + MONTHS[d.getUTCMonth()] + " " + d.getUTCFullYear();
+  }
+  function serviceById(id){ return SERVICES.filter(function(s){ return s.id === id; })[0]; }
+
+  var idBackdrop = document.getElementById("id-backdrop");
+  function openIdCard(memberId){
+    var m = MEMBERS.filter(function(x){ return x.id === memberId; })[0];
+    if (!m) return;
+    var svc = serviceById(m.Service) || { Name:"—", Initials:"?", Color:"#9C9B93" };
+    var pct = progressOf(m);
+    var fullName = ((m.FirstName||"") + " " + (m.LastName||"")).trim() || "—";
+    document.getElementById("id-card-content").innerHTML =
+      '<button class="close-btn" id="id-close" aria-label="Fermer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' +
+      '<div class="id-avatar" style="background:' + avatarColor(fullName) + '">' + initials(m.FirstName, m.LastName) + '</div>' +
+      '<h2>' + fullName + '</h2>' +
+      '<div class="id-role">' + (m.Role || "Poste non renseigné") + '</div>' +
+      '<div class="id-field"><span class="k">Service</span><span class="v">' + svc.Name + '</span></div>' +
+      '<div class="id-field"><span class="k">Email</span><span class="v">' + (m.Email || "—") + '</span></div>' +
+      '<div class="id-field"><span class="k">Téléphone</span><span class="v">' + (m.Phone || "—") + '</span></div>' +
+      '<div class="id-field"><span class="k">Arrivée</span><span class="v">' + formatGristDate(m.ArrivalDate) + '</span></div>' +
+      '<div class="id-field"><span class="k">Départ</span><span class="v">' + (m.DepartureDate ? formatGristDate(m.DepartureDate) : "—") + '</span></div>' +
+      '<div class="id-progress"><div class="lbl"><span>Intégration</span><span>' + pct + '%</span></div>' +
+        '<div class="prog-track"><div class="prog-fill" style="width:' + pct + '%"></div></div></div>';
+    document.getElementById("id-close").addEventListener("click", closeIdCard);
+    idBackdrop.classList.add("open");
+  }
+  function closeIdCard(){ idBackdrop.classList.remove("open"); }
+  idBackdrop.addEventListener("click", function(e){ if (e.target === idBackdrop) closeIdCard(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeIdCard(); });
 
   async function init(){
     try{
