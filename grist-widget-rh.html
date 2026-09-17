@@ -10,10 +10,6 @@
     src:url("https://cdn.jsdelivr.net/npm/@gouvfr-lasuite/ui-components@1.2.0/dist/assets/fonts/Marianne/Marianne-Regular.woff2") format("woff2");
   }
   @font-face{
-    font-family:"Marianne"; font-weight:500; font-style:normal; font-display:swap;
-    src:url("https://cdn.jsdelivr.net/npm/@gouvfr-lasuite/ui-components@1.2.0/dist/assets/fonts/Marianne/Marianne-Medium.woff2") format("woff2");
-  }
-  @font-face{
     font-family:"Marianne"; font-weight:700; font-style:normal; font-display:swap;
     src:url("https://cdn.jsdelivr.net/npm/@gouvfr-lasuite/ui-components@1.2.0/dist/assets/fonts/Marianne/Marianne-Bold.woff2") format("woff2");
   }
@@ -21,10 +17,7 @@
     --paper:#F6F6F6; --surface:#FFFFFF; --ink:#161616; --ink-muted:#666666; --ink-faint:#929292;
     --line:#DDDDDD; --line-strong:#CECECE;
     --blue:#000091; --blue-soft:#ECECFE; --blue-ink:#000091;
-    --red:#C9191E; --red-soft:#FFF4F4;
-    --green:#18753C; --green-soft:#E3FDEB;
-    --amber:#B34000; --amber-soft:#FFF4F3;
-    --grey-soft:#EEEEEE;
+    --green:#18753C; --grey-soft:#EEEEEE;
     --radius-s:4px; --radius-m:8px;
   }
   @media (prefers-color-scheme: dark){
@@ -32,149 +25,55 @@
       --paper:#161616; --surface:#1E1E1E; --ink:#F6F6F6; --ink-muted:#B1B1B1; --ink-faint:#8A8980;
       --line:#3A3A3A; --line-strong:#454339;
       --blue:#8585F6; --blue-soft:#21213F; --blue-ink:#C6C6FE;
-      --red:#F95C5E; --red-soft:#2B1919;
-      --green:#27A658; --green-soft:#142117;
-      --amber:#FC5D00; --amber-soft:#2D1814;
-      --grey-soft:#2C2C2E;
+      --green:#27A658; --grey-soft:#2C2C2E;
     }
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }
   body{ background:var(--paper); color:var(--ink); font-family:"Marianne", arial, sans-serif; font-size:15px; line-height:1.5; }
-  a{ color:inherit; }
-  button{ font-family:inherit; }
-  .shell{ max-width:1180px; margin:0 auto; padding:22px 22px 70px; }
-
-  .topbar{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
+  .shell{ max-width:1100px; margin:0 auto; padding:22px 22px 70px; }
+  .topbar{ margin-bottom:16px; }
   .topbar .brand{ font-size:12px; color:var(--ink-faint); margin:0 0 5px; }
-  .topbar h1{ font-family:"Marianne", arial, sans-serif; font-weight:700; font-size:28px; margin:0; letter-spacing:-0.01em; }
+  .topbar h1{ font-weight:700; font-size:26px; margin:0; letter-spacing:-0.01em; }
   .topbar .sub{ color:var(--ink-muted); margin-top:5px; font-size:13.5px; }
 
-  .btn{ border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); padding:9px 15px; border-radius:var(--radius-s); font-size:13.5px; font-weight:600; cursor:pointer; white-space:nowrap; }
-  .btn:hover{ border-color:var(--ink-faint); }
-  .btn.primary{ background:var(--blue); border-color:var(--blue); color:#fff; }
-  .btn.primary:hover{ opacity:.92; }
-  .btn.ghost{ border-color:transparent; background:transparent; color:var(--ink-muted); }
-  .btn:disabled{ opacity:.5; cursor:default; }
-  .btn:focus-visible, input:focus-visible, select:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
-
-  .back{ display:inline-flex; align-items:center; gap:6px; background:none; border:none; color:var(--ink-muted); font-size:13px; font-weight:600; cursor:pointer; padding:5px 2px; margin-bottom:16px; }
-  .back:hover{ color:var(--ink); }
-  .back svg{ width:14px; height:14px; }
-
-  .search{ flex:1 1 220px; position:relative; margin-bottom:16px; }
-  .search input{ width:100%; padding:9px 13px 9px 36px; border:1px solid var(--line-strong); border-radius:var(--radius-s); background:var(--surface); color:var(--ink); font-size:14px; }
+  .search{ position:relative; margin-bottom:16px; }
+  .search input{ width:100%; padding:9px 13px 9px 36px; border:1px solid var(--line-strong); border-radius:var(--radius-s); background:var(--surface); color:var(--ink); font-size:14px; font-family:inherit; }
   .search svg{ position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; stroke:var(--ink-faint); }
 
-  /* ---- Service cards ---- */
-  .service-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:14px; }
-  .service-card{ border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface); padding:18px; cursor:pointer; transition:border-color .12s ease; text-align:left; }
-  .service-card:hover{ border-color:var(--blue); }
-  .service-card .svc-top{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
-  .svc-badge{ width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; flex:none; }
-  .service-card h3{ margin:0; font-size:16px; font-weight:700; }
-  .service-card .manager{ font-size:12.5px; color:var(--ink-muted); margin:0 0 14px; }
-  .service-card .stats{ display:flex; justify-content:space-between; align-items:center; font-size:12.5px; color:var(--ink-muted); }
-  .progress-track{ height:6px; background:var(--grey-soft); border-radius:999px; overflow:hidden; margin:10px 0; }
-  .progress-fill{ height:100%; background:var(--green); border-radius:999px; }
-
-  /* ---- List ---- */
-  .list{ border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface); overflow:hidden; }
-  .list-head{ display:grid; grid-template-columns: 2.4fr 1.6fr 1.6fr 1fr 1.3fr 18px; gap:10px; padding:10px 16px; font-size:11.5px; color:var(--ink-faint); border-bottom:1px solid var(--line); font-weight:600; }
-  .row{ display:grid; grid-template-columns: 2.4fr 1.6fr 1.6fr 1fr 1.3fr 18px; gap:10px; align-items:center; padding:13px 16px; border-bottom:1px solid var(--line); cursor:pointer; }
-  .row:last-child{ border-bottom:none; }
-  .row:hover{ background:var(--paper); }
-  .tpl-select{ width:100%; border:1px solid transparent; background:transparent; color:var(--ink-muted); font-size:12.4px; font-family:inherit; padding:5px 6px; border-radius:var(--radius-s); cursor:pointer; }
-  .tpl-select:hover{ border-color:var(--line-strong); background:var(--paper); }
-  .person{ display:flex; align-items:center; gap:11px; min-width:0; }
-  .avatar{ width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:#fff; flex:none; }
-  .p-name{ font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .p-role{ color:var(--ink-muted); font-size:12.4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .contact{ display:flex; flex-direction:column; gap:2px; font-size:12.2px; color:var(--ink-muted); min-width:0; }
-  .contact span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .since{ font-size:12.6px; color:var(--ink-muted); }
-  .status{ display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:999px; font-size:11.5px; font-weight:600; white-space:nowrap; }
-  .status .dot{ width:6px; height:6px; border-radius:50%; }
-  .status.done{ background:var(--green-soft); color:var(--green); }
-  .status.done .dot{ background:var(--green); }
-  .status.progress{ background:var(--amber-soft); color:var(--amber); }
-  .status.progress .dot{ background:var(--amber); }
-  .status.new{ background:var(--grey-soft); color:var(--ink-muted); }
-  .status.new .dot{ background:var(--ink-faint); }
-  .chevron{ color:var(--ink-faint); }
-  .empty, .state{ padding:40px 20px; text-align:center; color:var(--ink-muted); }
+  .state{ padding:40px 20px; text-align:center; color:var(--ink-muted); }
   .state strong{ display:block; color:var(--ink); font-size:15px; margin-bottom:6px; font-weight:600; }
 
-  /* ---- Detail ---- */
-  #view-detail{ display:none; }
-  .dossier-head{ display:flex; gap:18px; align-items:flex-start; padding:22px; border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface); margin-bottom:18px; flex-wrap:wrap; }
-  .dossier-avatar{ width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:20px; color:#fff; flex:none; }
-  .dossier-id{ flex:1 1 240px; min-width:0; }
-  .dossier-id h2{ font-family:"Marianne", arial, sans-serif; font-weight:700; font-size:23px; margin:0 0 3px; letter-spacing:-0.01em; }
-  .dossier-role{ color:var(--ink-muted); font-size:13.8px; margin-bottom:9px; }
-  .dossier-meta{ display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
-  .tag{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; background:var(--grey-soft); color:var(--ink-muted); }
-  .tag.alert{ background:var(--red-soft); color:var(--red); }
-  .dossier-side{ flex:0 0 230px; display:flex; flex-direction:column; gap:9px; }
-  .field{ display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:12.5px; }
-  .field .k{ color:var(--ink-faint); }
-  .field .v{ font-weight:600; text-align:right; }
-  .field select{ width:auto; max-width:150px; text-align:right; color:var(--ink); font-weight:600; }
+  .svc-group{ border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface); margin-bottom:12px; overflow:hidden; }
+  .svc-group summary{ list-style:none; cursor:pointer; padding:13px 16px; display:flex; align-items:center; gap:11px; user-select:none; }
+  .svc-group summary::-webkit-details-marker{ display:none; }
+  .svc-group summary .chev{ margin-left:auto; color:var(--ink-faint); transition:transform .15s ease; flex:none; }
+  .svc-group[open] summary .chev{ transform:rotate(90deg); }
+  .svc-badge{ width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; color:#fff; flex:none; }
+  .svc-group summary h2{ margin:0; font-size:14.5px; font-weight:700; }
+  .svc-group summary .count{ font-size:11.5px; color:var(--ink-faint); background:var(--grey-soft); padding:3px 9px; border-radius:999px; font-weight:600; }
 
-  .grid-2{ display:grid; grid-template-columns: 1.35fr 1fr; gap:18px; align-items:start; }
-  .panel{ border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface); padding:20px; }
-  .panel + .panel{ margin-top:18px; }
-  .panel h3{ margin:0 0 4px; font-size:15.5px; font-weight:700; }
-  .panel .panel-sub{ color:var(--ink-muted); font-size:12.6px; margin:0 0 15px; }
-
-  .check{ display:flex; align-items:flex-start; gap:11px; padding:11px 0; border-bottom:1px solid var(--line); }
-  .check:last-child{ border-bottom:none; }
-  .check input{ position:absolute; opacity:0; width:19px; height:19px; margin:0; }
-  .check .box{ width:19px; height:19px; border-radius:5px; border:1.6px solid var(--line-strong); flex:none; margin-top:1px; display:flex; align-items:center; justify-content:center; cursor:pointer; background:var(--surface); }
-  .check input:checked + .box{ background:var(--green); border-color:var(--green); }
-  .check input:disabled + .box{ opacity:.6; cursor:wait; }
-  .check .box svg{ width:11px; height:11px; stroke:#fff; opacity:0; }
-  .check input:checked + .box svg{ opacity:1; }
-  .check-body{ flex:1; min-width:0; }
-  .check-label{ font-size:13.6px; font-weight:600; cursor:pointer; }
-  .check.is-done .check-label{ color:var(--ink-muted); text-decoration:line-through; text-decoration-color:var(--line-strong); }
-  .check-desc{ font-size:12.3px; color:var(--ink-muted); margin-top:2px; }
-  .check-meta{ font-size:11.5px; color:var(--ink-faint); margin-top:4px; }
-  .check-kind{ font-size:10px; font-weight:700; letter-spacing:.03em; color:var(--blue-ink); background:var(--blue-soft); padding:2px 6px; border-radius:5px; margin-left:7px; vertical-align:middle; }
-
-  .comment-form{ display:flex; flex-direction:column; gap:9px; margin-bottom:16px; }
-  .comment-form textarea{ width:100%; min-height:60px; padding:9px 11px; border:1px solid var(--line-strong); border-radius:var(--radius-s); background:var(--paper); color:var(--ink); font-family:inherit; font-size:13.3px; resize:vertical; }
-  .comment-form .btn{ align-self:flex-end; }
-  .comment{ display:flex; gap:11px; padding:13px 0; border-top:1px solid var(--line); }
-  .comment:first-of-type{ border-top:none; padding-top:0; }
-  .comment-dot{ width:7px; height:7px; border-radius:50%; background:var(--blue); margin-top:7px; flex:none; }
-  .comment-text{ font-size:13.4px; }
-  .comment-date{ font-size:11.5px; color:var(--ink-faint); margin-top:3px; }
-
-  /* ---- Add form ---- */
-  .add-form{ border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface); padding:18px; margin-bottom:16px; display:none; }
-  .add-form.open{ display:block; }
-  .add-form h3{ margin:0 0 12px; font-size:14.5px; }
-  .add-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-  .add-grid label{ display:block; font-size:11.5px; color:var(--ink-faint); margin-bottom:4px; font-weight:600; }
-  .add-grid input, .add-grid select{ width:100%; padding:8px 10px; border:1px solid var(--line-strong); border-radius:var(--radius-s); background:var(--paper); color:var(--ink); font-size:13px; font-family:inherit; }
-  .add-actions{ display:flex; gap:8px; justify-content:flex-end; }
+  table.roster{ width:100%; border-collapse:collapse; }
+  table.roster th{ text-align:left; font-size:10.5px; color:var(--ink-faint); font-weight:600; padding:7px 16px; border-top:1px solid var(--line); background:var(--paper); }
+  table.roster td{ padding:6px 16px; font-size:13.2px; border-top:1px solid var(--line); vertical-align:middle; }
+  table.roster tr.empty-row td{ text-align:center; color:var(--ink-faint); padding:16px; }
+  .cell-input{ width:100%; border:1px solid transparent; background:transparent; color:var(--ink); font-size:13.2px; font-family:inherit; padding:5px 6px; border-radius:var(--radius-s); }
+  .cell-input:hover{ border-color:var(--line-strong); }
+  .cell-input:focus{ border-color:var(--blue); outline:none; background:var(--surface); }
+  select.cell-input{ cursor:pointer; }
+  .prog-cell{ display:flex; align-items:center; gap:7px; min-width:120px; }
+  .prog-track{ flex:1; height:6px; background:var(--grey-soft); border-radius:999px; overflow:hidden; }
+  .prog-fill{ height:100%; border-radius:999px; background:var(--green); }
+  .prog-pct{ font-size:11.5px; font-weight:700; color:var(--ink-muted); width:32px; text-align:right; flex:none; }
 
   .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(10px); background:var(--ink); color:var(--paper); padding:10px 16px; border-radius:var(--radius-s); font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:20; }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
-  @media (max-width: 860px){
-    .grid-2{ grid-template-columns:1fr; }
-    .dossier-side{ flex:1 1 100%; flex-direction:row; flex-wrap:wrap; gap:14px 26px; }
-    .field{ flex-direction:column; align-items:flex-start; gap:2px; }
-    .field .v{ text-align:left; }
-    .add-grid{ grid-template-columns:1fr; }
-  }
   @media (max-width: 700px){
-    .list-head{ display:none; }
-    .row{ grid-template-columns:1fr; gap:7px; padding:15px 16px; }
-    .row .chevron{ display:none; }
-    .row .contact{ flex-direction:row; gap:12px; }
+    table.roster thead{ display:none; }
+    table.roster, table.roster tbody, table.roster tr, table.roster td{ display:block; width:100%; }
+    table.roster tr{ padding:10px 16px; border-top:1px solid var(--line); }
+    table.roster td{ border-top:none; padding:2px 0; }
   }
 </style>
 </head>
@@ -186,69 +85,19 @@
     Autorisez l'accès complet si Grist vous le demande.
   </div>
 
-  <div class="add-form" id="add-form">
-    <h3>Nouvel agent</h3>
-    <div class="add-grid">
-      <div><label>Nom complet</label><input id="af-name" type="text" placeholder="Ex. Yasmine Roche"></div>
-      <div><label>Poste</label><input id="af-role" type="text" placeholder="Ex. Chargée d'études"></div>
-      <div><label>Email</label><input id="af-email" type="text" placeholder="prenom.nom@gouv.fr"></div>
-      <div><label>Téléphone</label><input id="af-phone" type="text" placeholder="01 40 00 00 00"></div>
-      <div><label>Service</label><select id="af-service"></select></div>
-      <div><label>Date d'arrivée</label><input id="af-arrival" type="date"></div>
-      <div><label>Date de départ (optionnel)</label><input id="af-departure" type="date"></div>
-      <div><label>Template d'onboarding <span style="font-weight:400;color:var(--ink-faint)">(suggéré, modifiable)</span></label><select id="af-template"></select></div>
-    </div>
-    <div class="add-actions">
-      <button class="btn ghost" id="af-cancel">Annuler</button>
-      <button class="btn primary" id="af-save">Ajouter l'agent</button>
-    </div>
-  </div>
-
-  <div id="view-services" style="display:none">
+  <div id="view-main" style="display:none">
     <div class="topbar">
-      <div>
-        <p class="brand">Bienvenue à La Suite — espace RH</p>
-        <h1>Tous les services</h1>
-        <p class="sub" id="services-sub"></p>
-      </div>
-      <button class="btn primary" id="btn-add-from-services">+ Ajouter un agent</button>
+      <p class="brand">Bienvenue à La Suite — espace RH</p>
+      <h1>Agents par service</h1>
+      <p class="sub" id="main-sub"></p>
     </div>
-    <div class="service-grid" id="service-cards"></div>
-  </div>
 
-  <div id="view-team" style="display:none">
-    <button class="back" id="btn-back-services">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-      Tous les services
-    </button>
-    <div class="topbar">
-      <div>
-        <p class="brand" id="team-brand"></p>
-        <h1 id="team-title"></h1>
-        <p class="sub" id="team-sub"></p>
-      </div>
-      <button class="btn primary" id="btn-add-from-team">+ Ajouter un agent</button>
-    </div>
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="search-input" placeholder="Rechercher un nom ou un poste…" aria-label="Rechercher dans l'équipe">
+      <input type="text" id="search-input" placeholder="Rechercher un nom ou un poste…" aria-label="Rechercher un agent">
     </div>
-    <div class="list">
-      <div class="list-head"><div>Membre</div><div>Template</div><div>Contact</div><div>Arrivée</div><div>Intégration</div><div></div></div>
-      <div id="rows"></div>
-    </div>
-  </div>
 
-  <div id="view-detail">
-    <button class="back" id="btn-back-detail">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-      Retour à l'équipe
-    </button>
-    <div class="dossier-head" id="dossier-head"></div>
-    <div class="grid-2">
-      <div><div class="panel" id="panel-checklist"></div></div>
-      <div><div class="panel" id="panel-comments"></div></div>
-    </div>
+    <div id="groups"></div>
   </div>
 
 </div>
@@ -257,61 +106,13 @@
 <script>
 (function(){
 
-  var MONTHS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
-  var AVATAR_PALETTE = ["#5B5BD6","#B34700","#197C6A","#A32657","#3E6BC9","#7A5AF8","#B5842A"];
-
-  function avatarColor(name){
-    var h = 0;
-    for (var i=0;i<name.length;i++) h = (h*31 + name.charCodeAt(i)) >>> 0;
-    return AVATAR_PALETTE[h % AVATAR_PALETTE.length];
-  }
-  function initials(name){
-    var p = name.trim().split(" ");
-    return (p[0][0] + (p[1] ? p[1][0] : "")).toUpperCase();
-  }
   function toast(msg){
     var t = document.getElementById("toast");
     t.textContent = msg;
     t.classList.add("show");
     clearTimeout(t._timer);
-    t._timer = setTimeout(function(){ t.classList.remove("show"); }, 2400);
+    t._timer = setTimeout(function(){ t.classList.remove("show"); }, 2200);
   }
-  function todayUTCSeconds(){
-    var n = new Date();
-    return Math.floor(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()) / 1000);
-  }
-  function gristDateToParts(sec){
-    if (sec === null || sec === undefined) return null;
-    var d = new Date(sec * 1000);
-    return { y: d.getUTCFullYear(), m: d.getUTCMonth(), day: d.getUTCDate() };
-  }
-  function formatGristDate(sec){
-    var p = gristDateToParts(sec);
-    if (!p) return "—";
-    return p.day + " " + MONTHS[p.m] + " " + p.y;
-  }
-  function sinceLabel(sec){
-    var p = gristDateToParts(sec);
-    if (!p) return "—";
-    var arrival = new Date(Date.UTC(p.y, p.m, p.day));
-    var now = new Date();
-    var nowUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-    var months = (nowUTC.getUTCFullYear()-arrival.getUTCFullYear())*12 + (nowUTC.getUTCMonth()-arrival.getUTCMonth());
-    if (arrival > nowUTC){
-      var mFut = (arrival.getUTCFullYear()-nowUTC.getUTCFullYear())*12 + (arrival.getUTCMonth()-nowUTC.getUTCMonth());
-      return mFut <= 0 ? "Arrive bientôt" : "Arrive dans " + mFut + " mois";
-    }
-    if (months < 1) return "Cette semaine";
-    if (months < 12) return "Depuis " + months + " mois";
-    var y = Math.floor(months/12);
-    return "Depuis " + y + (y>1 ? " ans" : " an");
-  }
-  function dateInputToGrist(val){
-    if (!val) return null;
-    var parts = val.split("-").map(Number);
-    return Math.floor(Date.UTC(parts[0], parts[1]-1, parts[2]) / 1000);
-  }
-
   function loadGristScript(){
     return new Promise(function(resolve, reject){
       var s = document.createElement("script");
@@ -331,73 +132,22 @@
     return rows;
   }
 
-  /* ---------------- App state ---------------- */
+  var SERVICES = [], MEMBERS = [], ITEMS = [], MC = [], TEMPLATES = [];
+  var searchQuery = "";
 
-  var SERVICES = [], MEMBERS = [], ITEMS = [], MC = [], COMMENTS = [], TEMPLATES = [];
-  var currentServiceId = null, searchQuery = "";
-
-  function serviceById(id){ return SERVICES.filter(function(s){ return s.id === id; })[0]; }
-  function templateById(id){ return TEMPLATES.filter(function(t){ return t.id === id; })[0]; }
   function templateItems(templateId){
-    return ITEMS.filter(function(i){ return i.Template === templateId; }).sort(function(a,b){ return a.Order - b.Order; });
+    return ITEMS.filter(function(i){ return i.Template === templateId; });
   }
-  function memberChecklist(memberId){
-    var m = MEMBERS.filter(function(x){ return x.id === memberId; })[0];
-    if (!m) return [];
-    var rows = MC.filter(function(r){ return r.Member === memberId; });
-    var fromTemplate = templateItems(m.Template).map(function(item){
+  function progressOf(member){
+    var items = templateItems(member.Template);
+    var rows = MC.filter(function(r){ return r.Member === member.id; });
+    var custom = rows.filter(function(r){ return !r.Item && r.CustomLabel; });
+    var total = items.length + custom.length;
+    var done = items.filter(function(item){
       var row = rows.filter(function(r){ return r.Item === item.id; })[0];
-      return { type:"template", item: item, row: row };
-    });
-    var custom = rows.filter(function(r){ return !r.Item && r.CustomLabel; }).map(function(row){
-      return { type:"custom", item:{ id:"custom-"+row.id, Label: row.CustomLabel, Description: row.CustomDescription, Kind:"MANAGER" }, row: row };
-    });
-    return fromTemplate.concat(custom);
-  }
-  function suggestTemplate(role){
-    var text = (role || "").toLowerCase();
-    var withKeywords = TEMPLATES.filter(function(t){ return t.MatchKeywords && t.MatchKeywords.trim() !== ""; })
-      .sort(function(a,b){ return (a.Priority||99) - (b.Priority||99); });
-    for (var i=0;i<withKeywords.length;i++){
-      var kws = withKeywords[i].MatchKeywords.split(",").map(function(s){ return s.trim().toLowerCase(); }).filter(Boolean);
-      if (kws.some(function(k){ return text.indexOf(k) > -1; })) return withKeywords[i].id;
-    }
-    var fallback = TEMPLATES.filter(function(t){ return !t.MatchKeywords || t.MatchKeywords.trim() === ""; })[0];
-    return fallback ? fallback.id : (TEMPLATES[0] && TEMPLATES[0].id);
-  }
-  async function changeMemberTemplate(memberId, newTemplateId){
-    var m = MEMBERS.filter(function(x){ return x.id === memberId; })[0];
-    if (!m || m.Template === newTemplateId) return;
-    var oldItems = templateItems(m.Template);
-    var newItems = templateItems(newTemplateId);
-    var oldRows = MC.filter(function(r){ return r.Member === memberId && r.Item; });
-    var doneByLabel = {};
-    oldItems.forEach(function(item){
-      var row = oldRows.filter(function(r){ return r.Item === item.id; })[0];
-      if (row && row.Done) doneByLabel[item.Label] = row.DoneAt;
-    });
-    var actions = [["UpdateRecord","Members", memberId, { Template:newTemplateId }]];
-    oldRows.forEach(function(r){ actions.push(["RemoveRecord","MemberChecklist", r.id]); });
-    newItems.forEach(function(item){
-      var carried = Object.prototype.hasOwnProperty.call(doneByLabel, item.Label);
-      actions.push(["AddRecord","MemberChecklist", null, { Member:memberId, Item:item.id, Done:carried, DoneAt: carried ? doneByLabel[item.Label] : null }]);
-    });
-    await grist.docApi.applyUserActions(actions);
-    await loadAll();
-  }
-  function memberComments(memberId){
-    return COMMENTS.filter(function(c){ return c.Member === memberId; })
-      .sort(function(a,b){ return (b.Date||0) - (a.Date||0); });
-  }
-  function progressOf(memberId){
-    var cl = memberChecklist(memberId);
-    var done = cl.filter(function(c){ return c.row && c.row.Done; }).length;
-    return { done: done, total: cl.length, pct: cl.length ? Math.round(done/cl.length*100) : 0 };
-  }
-  function statusChip(pct){
-    if (pct === 0) return { cls:"new", label:"À démarrer" };
-    if (pct === 100) return { cls:"done", label:"Terminée" };
-    return { cls:"progress", label:"En cours" };
+      return row && row.Done;
+    }).length + custom.filter(function(r){ return r.Done; }).length;
+    return total ? Math.round(done/total*100) : 0;
   }
 
   async function loadAll(){
@@ -406,337 +156,85 @@
       grist.docApi.fetchTable("Members"),
       grist.docApi.fetchTable("ChecklistItems"),
       grist.docApi.fetchTable("MemberChecklist"),
-      grist.docApi.fetchTable("Comments"),
       grist.docApi.fetchTable("Templates")
     ]);
     SERVICES = rowsFromTable(res[0]);
     MEMBERS = rowsFromTable(res[1]);
-    ITEMS = rowsFromTable(res[2]).sort(function(a,b){ return a.Order - b.Order; });
+    ITEMS = rowsFromTable(res[2]);
     MC = rowsFromTable(res[3]);
-    COMMENTS = rowsFromTable(res[4]);
-    TEMPLATES = rowsFromTable(res[5]);
+    TEMPLATES = rowsFromTable(res[4]);
   }
 
-  /* ---------------- Vue : tous les services ---------------- */
+  async function saveField(memberId, field, value){
+    try{
+      await grist.docApi.applyUserActions([["UpdateRecord","Members", memberId, (function(){ var o={}; o[field]=value; return o; })()]]);
+    }catch(err){
+      toast("Échec de l'enregistrement — réessayez");
+    }
+  }
 
-  function renderServiceCards(){
-    var wrap = document.getElementById("service-cards");
-    document.getElementById("services-sub").textContent = MEMBERS.length + " agents au total, répartis sur " + SERVICES.length + " services";
+  function renderGroups(){
+    var wrap = document.getElementById("groups");
+    var q = searchQuery.trim().toLowerCase();
+    document.getElementById("main-sub").textContent = MEMBERS.length + " agents au total, répartis sur " + SERVICES.length + " services";
+
     wrap.innerHTML = "";
     SERVICES.forEach(function(s){
-      var members = MEMBERS.filter(function(m){ return m.Service === s.id; });
-      var avgPct = members.length
-        ? Math.round(members.reduce(function(sum,m){ return sum + progressOf(m.id).pct; }, 0) / members.length)
-        : 0;
-      var card = document.createElement("button");
-      card.type = "button";
-      card.className = "service-card";
-      card.innerHTML =
-        '<div class="svc-top"><div class="svc-badge" style="background:' + s.Color + '">' + s.Initials + '</div><h3>' + s.Name + '</h3></div>' +
-        '<p class="manager">' + (s.Manager ? "Managé par " + s.Manager : "Aucun manager renseigné") + '</p>' +
-        '<div class="progress-track"><div class="progress-fill" style="width:' + avgPct + '%"></div></div>' +
-        '<div class="stats"><span>' + members.length + ' agent' + (members.length>1?'s':'') + '</span><span>' + avgPct + '% en moyenne</span></div>';
-      card.addEventListener("click", function(){ openTeam(s.id); });
-      wrap.appendChild(card);
-    });
-  }
+      var members = MEMBERS.filter(function(m){ return m.Service === s.id; })
+        .filter(function(m){ return !q || ((m.FirstName||"") + " " + (m.LastName||"") + " " + (m.Role||"")).toLowerCase().indexOf(q) > -1; })
+        .sort(function(a,b){ return (a.LastName||"").localeCompare(b.LastName||"", "fr"); });
+      if (q && !members.length) return;
 
-  function showServices(){
-    document.getElementById("view-detail").style.display = "none";
-    document.getElementById("view-team").style.display = "none";
-    document.getElementById("view-services").style.display = "block";
-    renderServiceCards();
-  }
-  document.getElementById("btn-back-services").addEventListener("click", showServices);
+      var group = document.createElement("details");
+      group.className = "svc-group";
+      group.open = true;
 
-  /* ---------------- Vue : équipe d'un service ---------------- */
+      var rowsHtml = members.length ? members.map(function(m){
+        var pct = progressOf(m);
+        var tplOptions = TEMPLATES.map(function(t){
+          return '<option value="' + t.id + '"' + (t.id === m.Template ? " selected" : "") + '>' + t.Name + '</option>';
+        }).join("");
+        return '<tr data-member="' + m.id + '">' +
+          '<td><input class="cell-input" data-field="LastName" value="' + (m.LastName||"") + '" placeholder="Nom"></td>' +
+          '<td><input class="cell-input" data-field="FirstName" value="' + (m.FirstName||"") + '" placeholder="Prénom"></td>' +
+          '<td><input class="cell-input" data-field="Email" value="' + (m.Email||"") + '" placeholder="Email"></td>' +
+          '<td><input class="cell-input" data-field="Phone" value="' + (m.Phone||"") + '" placeholder="Téléphone"></td>' +
+          '<td><select class="cell-input tpl-select">' + tplOptions + '</select></td>' +
+          '<td><div class="prog-cell"><div class="prog-track"><div class="prog-fill" style="width:' + pct + '%"></div></div><span class="prog-pct">' + pct + '%</span></div></td>' +
+        '</tr>';
+      }).join("") : '<tr class="empty-row"><td colspan="6">Aucun agent dans ce service.</td></tr>';
 
-  function openTeam(serviceId){
-    currentServiceId = serviceId;
-    searchQuery = "";
-    document.getElementById("search-input").value = "";
-    document.getElementById("view-services").style.display = "none";
-    document.getElementById("view-detail").style.display = "none";
-    document.getElementById("view-team").style.display = "block";
-    renderTeam();
-  }
+      group.innerHTML =
+        '<summary>' +
+          '<div class="svc-badge" style="background:' + s.Color + '">' + s.Initials + '</div>' +
+          '<h2>' + s.Name + '</h2>' +
+          '<span class="count">' + members.length + ' agent' + (members.length>1?'s':'') + '</span>' +
+          '<svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>' +
+        '</summary>' +
+        '<table class="roster"><thead><tr><th>Nom</th><th>Prénom</th><th>Email</th><th>Téléphone</th><th>Template</th><th>Intégration</th></tr></thead>' +
+        '<tbody>' + rowsHtml + '</tbody></table>';
 
-  function filteredTeamMembers(){
-    var q = searchQuery.trim().toLowerCase();
-    return MEMBERS.filter(function(m){
-      if (m.Service !== currentServiceId) return false;
-      if (!q) return true;
-      return (m.Name + " " + m.Role).toLowerCase().indexOf(q) > -1;
-    });
-  }
-
-  function renderTeam(){
-    var s = serviceById(currentServiceId);
-    document.getElementById("team-brand").textContent = "Bienvenue à La Suite — espace RH";
-    document.getElementById("team-title").textContent = s ? s.Name : "Équipe";
-    var members = filteredTeamMembers();
-    var done = members.filter(function(m){ return progressOf(m.id).pct===100; }).length;
-    document.getElementById("team-sub").textContent =
-      (s && s.Manager ? "Managé par " + s.Manager + " — " : "") + members.length + " agents — " + done + " intégrations terminées";
-
-    var rows = document.getElementById("rows");
-    if (!members.length){
-      rows.innerHTML = '<div class="empty"><strong>Aucun agent ne correspond</strong>Essayez un autre nom, ou ajoutez un agent à ce service.</div>';
-      return;
-    }
-    rows.innerHTML = "";
-    members.forEach(function(m){
-      var prog = progressOf(m.id);
-      var chip = statusChip(prog.pct);
-      var row = document.createElement("div");
-      row.className = "row";
-      row.tabIndex = 0;
-      row.setAttribute("role","button");
-      row.setAttribute("aria-label", "Ouvrir la fiche de " + m.Name);
-
-      var tplOptions = TEMPLATES.map(function(t){
-        return '<option value="' + t.id + '"' + (t.id === m.Template ? " selected" : "") + '>' + t.Name + '</option>';
-      }).join("");
-
-      row.innerHTML =
-        '<div class="person"><div class="avatar" style="background:' + avatarColor(m.Name) + '">' + initials(m.Name) + '</div>' +
-          '<div style="min-width:0"><div class="p-name">' + m.Name + '</div><div class="p-role">' + (m.Role||"") + '</div></div></div>' +
-        '<div><select class="tpl-select" aria-label="Template d\'onboarding de ' + m.Name + '">' + tplOptions + '</select></div>' +
-        '<div class="contact"><span>' + (m.Email||"") + '</span><span>' + (m.Phone||"") + '</span></div>' +
-        '<div class="since">' + sinceLabel(m.ArrivalDate) + (m.DepartureDate ? '<div style="color:var(--red);font-weight:600;margin-top:2px;">Départ prévu</div>' : '') + '</div>' +
-        '<div><span class="status ' + chip.cls + '"><span class="dot"></span>' + chip.label + ' · ' + prog.done + '/' + prog.total + '</span></div>' +
-        '<div class="chevron"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></div>';
-
-      var tplSelect = row.querySelector(".tpl-select");
-      tplSelect.addEventListener("click", function(e){ e.stopPropagation(); });
-      tplSelect.addEventListener("change", async function(){
-        tplSelect.disabled = true;
-        try{
-          await changeMemberTemplate(m.id, Number(tplSelect.value));
-          renderTeam();
-          toast("Template mis à jour pour " + m.Name.split(" ")[0]);
-        }catch(err){
-          toast("Échec de la mise à jour — réessayez");
-          tplSelect.disabled = false;
-        }
-      });
-
-      row.addEventListener("click", function(){ openDetail(m.id); });
-      row.addEventListener("keydown", function(e){ if (e.key==="Enter"||e.key===" "){ e.preventDefault(); openDetail(m.id); } });
-      rows.appendChild(row);
-    });
-  }
-  document.getElementById("search-input").addEventListener("input", function(e){ searchQuery = e.target.value; renderTeam(); });
-
-  /* ---------------- Ajouter un agent ---------------- */
-
-  var addForm = document.getElementById("add-form");
-  var tplManuallySet = false;
-  function openAddForm(){
-    var sel = document.getElementById("af-service");
-    sel.innerHTML = SERVICES.map(function(s){ return '<option value="' + s.id + '">' + s.Name + '</option>'; }).join("");
-    if (currentServiceId) sel.value = String(currentServiceId);
-    var tplSel = document.getElementById("af-template");
-    tplSel.innerHTML = TEMPLATES.map(function(t){ return '<option value="' + t.id + '">' + t.Name + '</option>'; }).join("");
-    tplManuallySet = false;
-    window.scrollTo(0,0);
-    addForm.classList.add("open");
-  }
-  document.getElementById("btn-add-from-services").addEventListener("click", openAddForm);
-  document.getElementById("btn-add-from-team").addEventListener("click", openAddForm);
-  document.getElementById("af-role").addEventListener("input", function(e){
-    if (tplManuallySet) return;
-    document.getElementById("af-template").value = String(suggestTemplate(e.target.value));
-  });
-  document.getElementById("af-template").addEventListener("change", function(){ tplManuallySet = true; });
-  document.getElementById("af-cancel").addEventListener("click", function(){ addForm.classList.remove("open"); });
-  document.getElementById("af-save").addEventListener("click", async function(){
-    var name = document.getElementById("af-name").value.trim();
-    var role = document.getElementById("af-role").value.trim();
-    var email = document.getElementById("af-email").value.trim();
-    var phone = document.getElementById("af-phone").value.trim();
-    var service = Number(document.getElementById("af-service").value);
-    var template = Number(document.getElementById("af-template").value);
-    var arrival = dateInputToGrist(document.getElementById("af-arrival").value) || todayUTCSeconds();
-    var departure = dateInputToGrist(document.getElementById("af-departure").value);
-    if (!name){ toast("Le nom est obligatoire"); return; }
-    if (!service){ toast("Le service est obligatoire"); return; }
-
-    var btn = document.getElementById("af-save");
-    btn.disabled = true;
-    try{
-      var addResult = await grist.docApi.applyUserActions([
-        ["AddRecord", "Members", null, { Name:name, Role:role, Email:email, Phone:phone, Service:service, Template:template, ArrivalDate:arrival, DepartureDate:departure }]
-      ]);
-      var newId = addResult.retValues[0];
-      var checklistActions = templateItems(template).map(function(item){
-        return ["AddRecord", "MemberChecklist", null, { Member:newId, Item:item.id, Done:false, DoneAt:null }];
-      });
-      await grist.docApi.applyUserActions(checklistActions);
-      await loadAll();
-      addForm.classList.remove("open");
-      ["af-name","af-role","af-email","af-phone","af-arrival","af-departure"].forEach(function(id){ document.getElementById(id).value=""; });
-      toast(name + " a été ajouté·e à l'équipe");
-      if (document.getElementById("view-team").style.display !== "none"){ currentServiceId = service; renderTeam(); }
-      else { renderServiceCards(); }
-    }catch(err){
-      toast("Erreur lors de l'ajout — réessayez");
-    }
-    btn.disabled = false;
-  });
-
-  /* ---------------- Détail ---------------- */
-
-  function openDetail(id){
-    renderDetail(id);
-    document.getElementById("view-services").style.display = "none";
-    document.getElementById("view-team").style.display = "none";
-    document.getElementById("view-detail").style.display = "block";
-    window.scrollTo(0,0);
-  }
-  document.getElementById("btn-back-detail").addEventListener("click", function(){
-    document.getElementById("view-detail").style.display = "none";
-    if (currentServiceId){ document.getElementById("view-team").style.display = "block"; renderTeam(); }
-    else { showServices(); }
-  });
-
-  function renderDetail(id){
-    var m = MEMBERS.filter(function(x){ return x.id === id; })[0];
-    if (!m) return;
-    var svc = serviceById(m.Service) || { Name:"—", Initials:"?", Color:"#9C9B93" };
-    var tpl = templateById(m.Template);
-    var prog = progressOf(m.id);
-
-    var svcOptions = SERVICES.map(function(s){
-      return '<option value="' + s.id + '"' + (s.id === m.Service ? " selected" : "") + '>' + s.Name + '</option>';
-    }).join("");
-    var tplOptions = TEMPLATES.map(function(t){
-      return '<option value="' + t.id + '"' + (t.id === m.Template ? " selected" : "") + '>' + t.Name + '</option>';
-    }).join("");
-
-    var head = document.getElementById("dossier-head");
-    head.innerHTML =
-      '<div class="dossier-avatar" style="background:' + avatarColor(m.Name) + '">' + initials(m.Name) + '</div>' +
-      '<div class="dossier-id"><h2>' + m.Name + '</h2><div class="dossier-role">' + (m.Role||"") + '</div>' +
-        '<div class="dossier-meta">' +
-          '<span class="tag">' + sinceLabel(m.ArrivalDate) + '</span>' +
-          (m.DepartureDate ? '<span class="tag alert">Départ le ' + formatGristDate(m.DepartureDate) + '</span>' : '') +
-        '</div></div>' +
-      '<div class="dossier-side">' +
-        '<div class="field"><span class="k">Email</span><span class="v">' + (m.Email||"—") + '</span></div>' +
-        '<div class="field"><span class="k">Téléphone</span><span class="v">' + (m.Phone||"—") + '</span></div>' +
-        '<div class="field"><span class="k">Arrivée</span><span class="v">' + formatGristDate(m.ArrivalDate) + '</span></div>' +
-        '<div class="field"><span class="k">Départ</span><span class="v">' + (m.DepartureDate ? formatGristDate(m.DepartureDate) : "—") + '</span></div>' +
-        '<div class="field"><span class="k">Service</span><select id="detail-svc-select">' + svcOptions + '</select></div>' +
-        '<div class="field"><span class="k">Template</span><select id="detail-tpl-select">' + tplOptions + '</select></div>' +
-      '</div>';
-
-    document.getElementById("detail-svc-select").addEventListener("change", async function(e){
-      e.target.disabled = true;
-      try{
-        await grist.docApi.applyUserActions([["UpdateRecord","Members", m.id, { Service:Number(e.target.value) }]]);
-        await loadAll();
-        renderDetail(m.id);
-        toast("Service mis à jour");
-      }catch(err){
-        toast("Échec de la mise à jour — réessayez");
-        e.target.disabled = false;
-      }
-    });
-    document.getElementById("detail-tpl-select").addEventListener("change", async function(e){
-      e.target.disabled = true;
-      try{
-        await changeMemberTemplate(m.id, Number(e.target.value));
-        renderDetail(m.id);
-        toast("Template mis à jour");
-      }catch(err){
-        toast("Échec de la mise à jour — réessayez");
-        e.target.disabled = false;
-      }
-    });
-
-    var checklistPanel = document.getElementById("panel-checklist");
-    checklistPanel.innerHTML =
-      '<h3>Suivi de l\'intégration</h3>' +
-      '<p class="panel-sub">Template « ' + (tpl ? tpl.Name : "—") + ' » — service ' + svc.Name + '.</p>' +
-      '<div class="progress-track"><div class="progress-fill" style="width:' + prog.pct + '%"></div></div>' +
-      '<div id="check-list"></div>';
-    var list = checklistPanel.querySelector("#check-list");
-
-    memberChecklist(m.id).forEach(function(entry){
-      var item = entry.item, row = entry.row;
-      var done = !!(row && row.Done);
-      var cid = "chk-" + m.id + "-" + item.id;
-      var el = document.createElement("div");
-      el.className = "check" + (done ? " is-done" : "");
-      el.innerHTML =
-        '<input type="checkbox" id="' + cid + '" ' + (done ? "checked" : "") + '>' +
-        '<label class="box" for="' + cid + '"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></label>' +
-        '<div class="check-body"><label class="check-label" for="' + cid + '">' + item.Label + '<span class="check-kind">' + item.Kind + '</span></label>' +
-        '<div class="check-desc">' + (item.Description||"") + '</div>' +
-        (done && row.DoneAt ? '<div class="check-meta">Terminé le ' + formatGristDate(row.DoneAt) + '</div>' : '') + '</div>';
-
-      var input = el.querySelector("input");
-      input.addEventListener("change", async function(){
-        input.disabled = true;
-        var isDone = input.checked;
-        var doneAt = isDone ? todayUTCSeconds() : null;
-        try{
-          if (row){
-            await grist.docApi.applyUserActions([["UpdateRecord","MemberChecklist", row.id, { Done:isDone, DoneAt:doneAt }]]);
-          } else {
-            await grist.docApi.applyUserActions([["AddRecord","MemberChecklist", null, { Member:m.id, Item:item.id, Done:isDone, DoneAt:doneAt }]]);
-          }
+      group.querySelectorAll("tr[data-member]").forEach(function(tr){
+        var memberId = Number(tr.getAttribute("data-member"));
+        tr.querySelectorAll("input.cell-input").forEach(function(input){
+          input.addEventListener("change", function(){
+            saveField(memberId, input.getAttribute("data-field"), input.value.trim());
+          });
+        });
+        var tplSelect = tr.querySelector(".tpl-select");
+        tplSelect.addEventListener("change", async function(){
+          tplSelect.disabled = true;
+          await saveField(memberId, "Template", Number(tplSelect.value));
           await loadAll();
-          renderDetail(m.id);
-        }catch(err){
-          toast("Échec de l'enregistrement — réessayez");
-          input.checked = !isDone;
-          input.disabled = false;
-        }
+          renderGroups();
+          toast("Template mis à jour");
+        });
       });
-      list.appendChild(el);
-    });
 
-    var commentsPanel = document.getElementById("panel-comments");
-    commentsPanel.innerHTML =
-      '<h3>Notes de suivi</h3><p class="panel-sub">Visibles par les personnes ayant accès au document.</p>' +
-      '<div class="comment-form"><textarea id="comment-input" placeholder="Ajouter une note sur ' + m.Name.split(" ")[0] + '…"></textarea>' +
-      '<button class="btn primary" id="btn-comment">Ajouter la note</button></div>' +
-      '<div id="comment-list"></div>';
-
-    var cl = commentsPanel.querySelector("#comment-list");
-    var comments = memberComments(m.id);
-    if (!comments.length){
-      cl.innerHTML = '<p style="color:var(--ink-faint);font-size:13px;margin:0;">Aucune note pour le moment.</p>';
-    } else {
-      comments.forEach(function(c){
-        var d = document.createElement("div");
-        d.className = "comment";
-        d.innerHTML = '<div class="comment-dot"></div><div><div class="comment-text">' + c.Text + '</div><div class="comment-date">' + formatGristDate(c.Date) + '</div></div>';
-        cl.appendChild(d);
-      });
-    }
-
-    commentsPanel.querySelector("#btn-comment").addEventListener("click", async function(){
-      var ta = commentsPanel.querySelector("#comment-input");
-      var val = ta.value.trim();
-      if (!val) return;
-      var btn = commentsPanel.querySelector("#btn-comment");
-      btn.disabled = true;
-      try{
-        await grist.docApi.applyUserActions([["AddRecord","Comments", null, { Member:m.id, Date:todayUTCSeconds(), Text:val }]]);
-        await loadAll();
-        renderDetail(m.id);
-        toast("Note ajoutée");
-      }catch(err){
-        toast("Échec de l'enregistrement — réessayez");
-      }
-      btn.disabled = false;
+      wrap.appendChild(group);
     });
   }
-
-  /* ---------------- Init ---------------- */
+  document.getElementById("search-input").addEventListener("input", function(e){ searchQuery = e.target.value; renderGroups(); });
 
   async function init(){
     try{
@@ -744,7 +242,8 @@
       grist.ready({ requiredAccess: "full", name: "Espace RH" });
       await loadAll();
       document.getElementById("view-loading").style.display = "none";
-      showServices();
+      document.getElementById("view-main").style.display = "block";
+      renderGroups();
     }catch(err){
       document.getElementById("view-loading").innerHTML =
         '<strong>Connexion impossible</strong>Vérifiez que ce widget a bien été ouvert depuis une page Grist, avec l\'accès complet au document autorisé.';
