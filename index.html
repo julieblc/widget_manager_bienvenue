@@ -72,8 +72,11 @@
   .chip[aria-pressed="true"]{ background:var(--blue); border-color:var(--blue); color:#fff; }
 
   .list{ border:1px solid var(--line); border-radius:var(--radius-m); background:var(--surface); overflow:hidden; }
-  .list-head{ display:grid; grid-template-columns: 2.2fr 1.5fr 1.6fr 1fr 1.3fr 18px; gap:10px; padding:10px 16px; font-size:11.5px; color:var(--ink-faint); border-bottom:1px solid var(--line); font-weight:600; }
-  .row{ display:grid; grid-template-columns: 2.2fr 1.5fr 1.6fr 1fr 1.3fr 18px; gap:10px; align-items:center; padding:13px 16px; border-bottom:1px solid var(--line); cursor:pointer; }
+  .list-head{ display:grid; grid-template-columns: 2fr 1.4fr 1.4fr 1.5fr 0.9fr 1.2fr 18px; gap:10px; padding:10px 16px; font-size:11.5px; color:var(--ink-faint); border-bottom:1px solid var(--line); font-weight:600; }
+  .row{ display:grid; grid-template-columns: 2fr 1.4fr 1.4fr 1.5fr 0.9fr 1.2fr 18px; gap:10px; align-items:center; padding:13px 16px; border-bottom:1px solid var(--line); cursor:pointer; }
+  .tpl-select{ width:100%; border:1px solid transparent; background:transparent; color:var(--ink-muted); font-size:12.4px; font-family:inherit; padding:5px 6px; border-radius:var(--radius-s); cursor:pointer; }
+  .tpl-select:hover{ border-color:var(--line-strong); background:var(--paper); }
+  .tpl-select:focus-visible{ outline:2px solid var(--blue); outline-offset:1px; }
   .row:last-child{ border-bottom:none; }
   .row:hover{ background:var(--paper); }
   .person{ display:flex; align-items:center; gap:11px; min-width:0; }
@@ -185,6 +188,12 @@
     Autorisez l'accès complet si Grist vous le demande.
   </div>
 
+  <div id="view-identity" class="state" style="display:none; text-align:left; max-width:420px; margin:60px auto;">
+    <strong style="font-size:19px; display:block; margin-bottom:6px;">Qui êtes-vous ?</strong>
+    <p style="margin:0 0 18px;">Choisissez votre nom pour n'afficher que votre équipe. Ce choix reste dans ce navigateur.</p>
+    <div id="identity-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+  </div>
+
   <div id="view-list" style="display:none">
     <div class="topbar">
       <div>
@@ -192,7 +201,10 @@
         <h1>Mon équipe</h1>
         <p class="sub" id="team-sub"></p>
       </div>
-      <button class="btn primary" id="btn-add">+ Ajouter un membre</button>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+        <button class="btn primary" id="btn-add">+ Ajouter un membre</button>
+        <button class="btn ghost" id="btn-switch-identity" style="padding:2px 4px; font-size:12px;">Changer d'identité</button>
+      </div>
     </div>
 
     <div class="add-form" id="add-form">
@@ -202,8 +214,9 @@
         <div><label>Poste</label><input id="af-role" type="text" placeholder="Ex. Chargée d'études"></div>
         <div><label>Email</label><input id="af-email" type="text" placeholder="prenom.nom@gouv.fr"></div>
         <div><label>Téléphone</label><input id="af-phone" type="text" placeholder="01 40 00 00 00"></div>
-        <div><label>Service</label><select id="af-service"></select></div>
+        <div><label>Service</label><input id="af-service-label" type="text" disabled style="background:var(--grey-soft);"></div>
         <div><label>Date d'arrivée</label><input id="af-arrival" type="date"></div>
+        <div style="grid-column:1 / -1"><label>Template d'onboarding <span style="font-weight:400;color:var(--ink-faint)">(suggéré depuis le poste, modifiable)</span></label><select id="af-template"></select></div>
       </div>
       <div class="add-actions">
         <button class="btn ghost" id="af-cancel">Annuler</button>
@@ -214,14 +227,13 @@
     <div class="controls">
       <div class="search">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" id="search-input" placeholder="Rechercher un nom, un poste, un service…" aria-label="Rechercher dans l'équipe">
+        <input type="text" id="search-input" placeholder="Rechercher un nom ou un poste…" aria-label="Rechercher dans l'équipe">
       </div>
-      <div class="chips" id="service-chips" role="group" aria-label="Filtrer par service"></div>
     </div>
 
     <div class="list">
       <div class="list-head">
-        <div>Membre</div><div>Service</div><div>Contact</div><div>Arrivée</div><div>Intégration</div><div></div>
+        <div>Membre</div><div>Service</div><div>Template</div><div>Contact</div><div>Arrivée</div><div>Intégration</div><div></div>
       </div>
       <div id="rows"></div>
     </div>
@@ -324,16 +336,64 @@
 
   /* ---------------- App state ---------------- */
 
-  var SERVICES = [], MEMBERS = [], ITEMS = [], MC = [], COMMENTS = [];
-  var activeServiceFilter = "all", searchQuery = "";
+  var SERVICES = [], MEMBERS = [], ITEMS = [], MC = [], COMMENTS = [], TEMPLATES = [];
+  var searchQuery = "";
+  var MY_SERVICE_ID = null; // service géré par le manager identifié dans ce navigateur
 
   function serviceById(id){ return SERVICES.filter(function(s){ return s.id === id; })[0]; }
+  function templateById(id){ return TEMPLATES.filter(function(t){ return t.id === id; })[0]; }
+  function templateItems(templateId){
+    return ITEMS.filter(function(i){ return i.Template === templateId; }).sort(function(a,b){ return a.Order - b.Order; });
+  }
   function memberChecklist(memberId){
+    var m = MEMBERS.filter(function(x){ return x.id === memberId; })[0];
+    if (!m) return [];
     var rows = MC.filter(function(r){ return r.Member === memberId; });
-    return ITEMS.map(function(item){
+    var fromTemplate = templateItems(m.Template).map(function(item){
       var row = rows.filter(function(r){ return r.Item === item.id; })[0];
-      return { item: item, row: row };
+      return { type:"template", item: item, row: row };
     });
+    var custom = rows.filter(function(r){ return !r.Item && r.CustomLabel; }).map(function(row){
+      return { type:"custom", item:{ id:"custom-"+row.id, Label: row.CustomLabel, Description: row.CustomDescription, Kind:"MANAGER" }, row: row };
+    });
+    return fromTemplate.concat(custom);
+  }
+  /* Suggère un template à partir du texte du poste : les templates sont testés
+     par ordre de Priority (les plus spécifiques en premier), et celui sans
+     mot-clé (Socle commun) sert de repli. */
+  function suggestTemplate(role){
+    var text = (role || "").toLowerCase();
+    var withKeywords = TEMPLATES.filter(function(t){ return t.MatchKeywords && t.MatchKeywords.trim() !== ""; })
+      .sort(function(a,b){ return (a.Priority||99) - (b.Priority||99); });
+    for (var i=0;i<withKeywords.length;i++){
+      var kws = withKeywords[i].MatchKeywords.split(",").map(function(s){ return s.trim().toLowerCase(); }).filter(Boolean);
+      if (kws.some(function(k){ return text.indexOf(k) > -1; })) return withKeywords[i].id;
+    }
+    var fallback = TEMPLATES.filter(function(t){ return !t.MatchKeywords || t.MatchKeywords.trim() === ""; })[0];
+    return fallback ? fallback.id : (TEMPLATES[0] && TEMPLATES[0].id);
+  }
+  /* Change le template d'un membre : conserve l'état "fait" des étapes communes
+     aux deux templates (comparées par libellé), ajoute les nouvelles étapes,
+     retire celles qui n'appartiennent plus au template choisi. */
+  async function changeMemberTemplate(memberId, newTemplateId){
+    var m = MEMBERS.filter(function(x){ return x.id === memberId; })[0];
+    if (!m || m.Template === newTemplateId) return;
+    var oldItems = templateItems(m.Template);
+    var newItems = templateItems(newTemplateId);
+    var oldRows = MC.filter(function(r){ return r.Member === memberId && r.Item; });
+    var doneByLabel = {};
+    oldItems.forEach(function(item){
+      var row = oldRows.filter(function(r){ return r.Item === item.id; })[0];
+      if (row && row.Done) doneByLabel[item.Label] = row.DoneAt;
+    });
+    var actions = [["UpdateRecord","Members", memberId, { Template:newTemplateId }]];
+    oldRows.forEach(function(r){ actions.push(["RemoveRecord","MemberChecklist", r.id]); });
+    newItems.forEach(function(item){
+      var carried = Object.prototype.hasOwnProperty.call(doneByLabel, item.Label);
+      actions.push(["AddRecord","MemberChecklist", null, { Member:memberId, Item:item.id, Done:carried, DoneAt: carried ? doneByLabel[item.Label] : null }]);
+    });
+    await grist.docApi.applyUserActions(actions);
+    await loadAll();
   }
   function memberComments(memberId){
     return COMMENTS.filter(function(c){ return c.Member === memberId; })
@@ -356,39 +416,25 @@
       grist.docApi.fetchTable("Members"),
       grist.docApi.fetchTable("ChecklistItems"),
       grist.docApi.fetchTable("MemberChecklist"),
-      grist.docApi.fetchTable("Comments")
+      grist.docApi.fetchTable("Comments"),
+      grist.docApi.fetchTable("Templates")
     ]);
     SERVICES = rowsFromTable(res[0]);
     MEMBERS = rowsFromTable(res[1]);
     ITEMS = rowsFromTable(res[2]).sort(function(a,b){ return a.Order - b.Order; });
     MC = rowsFromTable(res[3]);
     COMMENTS = rowsFromTable(res[4]);
+    TEMPLATES = rowsFromTable(res[5]);
   }
 
   /* ---------------- Rendering: list ---------------- */
 
-  function renderChips(){
-    var wrap = document.getElementById("service-chips");
-    var items = [{ id:"all", Name:"Toute l'équipe" }].concat(SERVICES);
-    wrap.innerHTML = "";
-    items.forEach(function(it){
-      var b = document.createElement("button");
-      b.className = "chip";
-      b.type = "button";
-      b.textContent = it.Name;
-      b.setAttribute("aria-pressed", String(activeServiceFilter === it.id));
-      b.addEventListener("click", function(){ activeServiceFilter = it.id; renderChips(); renderRows(); });
-      wrap.appendChild(b);
-    });
-  }
-
   function filteredMembers(){
     var q = searchQuery.trim().toLowerCase();
     return MEMBERS.filter(function(m){
-      if (activeServiceFilter !== "all" && m.Service !== activeServiceFilter) return false;
+      if (m.Service !== MY_SERVICE_ID) return false;
       if (!q) return true;
-      var svc = serviceById(m.Service);
-      var hay = (m.Name + " " + m.Role + " " + (svc ? svc.Name : "")).toLowerCase();
+      var hay = (m.Name + " " + m.Role).toLowerCase();
       return hay.indexOf(q) > -1;
     });
   }
@@ -396,11 +442,13 @@
   function renderRows(){
     var rows = document.getElementById("rows");
     var members = filteredMembers();
-    var totalDone = MEMBERS.filter(function(m){ return progressOf(m.id).pct === 100; }).length;
-    document.getElementById("team-sub").textContent = MEMBERS.length + " membres — " + totalDone + " intégrations terminées";
+    var svc = serviceById(MY_SERVICE_ID);
+    var totalDone = members.filter(function(m){ return progressOf(m.id).pct === 100; }).length;
+    document.getElementById("team-sub").textContent =
+      (svc ? "Équipe " + svc.Name + " — " : "") + members.length + " membres — " + totalDone + " intégrations terminées";
 
     if (!members.length){
-      rows.innerHTML = '<div class="empty"><strong>Aucun membre ne correspond</strong>Essayez un autre nom ou service.</div>';
+      rows.innerHTML = '<div class="empty"><strong>Aucun membre ne correspond</strong>Essayez un autre nom.</div>';
       return;
     }
 
@@ -415,14 +463,35 @@
       row.tabIndex = 0;
       row.setAttribute("role","button");
       row.setAttribute("aria-label", "Ouvrir la fiche de " + m.Name);
+      var tplOptions = TEMPLATES.map(function(t){
+        return '<option value="' + t.id + '"' + (t.id === m.Template ? " selected" : "") + '>' + t.Name + '</option>';
+      }).join("");
+
       row.innerHTML =
         '<div class="person"><div class="avatar" style="background:' + avatarColor(m.Name) + '">' + initials(m.Name) + '</div>' +
           '<div style="min-width:0"><div class="p-name">' + m.Name + '</div><div class="p-role">' + (m.Role||"") + '</div></div></div>' +
         '<div class="svc"><div class="svc-badge" style="background:' + svc.Color + '">' + svc.Initials + '</div><div class="svc-name">' + svc.Name + '</div></div>' +
+        '<div><select class="tpl-select" aria-label="Template d\'onboarding de ' + m.Name + '">' + tplOptions + '</select></div>' +
         '<div class="contact"><span>' + (m.Email||"") + '</span><span>' + (m.Phone||"") + '</span></div>' +
         '<div class="since">' + sinceLabel(m.ArrivalDate) + (m.DepartureDate ? '<div style="color:var(--red);font-weight:600;margin-top:2px;">Départ prévu</div>' : '') + '</div>' +
         '<div><span class="status ' + chip.cls + '"><span class="dot"></span>' + chip.label + ' · ' + prog.done + '/' + prog.total + '</span></div>' +
         '<div class="chevron"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></div>';
+
+      var tplSelect = row.querySelector(".tpl-select");
+      tplSelect.addEventListener("click", function(e){ e.stopPropagation(); });
+      tplSelect.addEventListener("change", async function(e){
+        e.stopPropagation();
+        tplSelect.disabled = true;
+        try{
+          await changeMemberTemplate(m.id, Number(tplSelect.value));
+          renderRows();
+          toast("Template mis à jour pour " + m.Name.split(" ")[0]);
+        }catch(err){
+          toast("Échec de la mise à jour — réessayez");
+          tplSelect.disabled = false;
+        }
+      });
+
       row.addEventListener("click", function(){ openDetail(m.id); });
       row.addEventListener("keydown", function(e){ if (e.key==="Enter"||e.key===" "){ e.preventDefault(); openDetail(m.id); } });
       rows.appendChild(row);
@@ -434,18 +503,28 @@
   /* ---------------- Add member ---------------- */
 
   var addForm = document.getElementById("add-form");
+  var tplManuallySet = false;
   document.getElementById("btn-add").addEventListener("click", function(){
-    var sel = document.getElementById("af-service");
-    sel.innerHTML = SERVICES.map(function(s){ return '<option value="' + s.id + '">' + s.Name + '</option>'; }).join("");
+    var svc = serviceById(MY_SERVICE_ID);
+    document.getElementById("af-service-label").value = svc ? svc.Name : "";
+    var tplSel = document.getElementById("af-template");
+    tplSel.innerHTML = TEMPLATES.map(function(t){ return '<option value="' + t.id + '">' + t.Name + '</option>'; }).join("");
+    tplManuallySet = false;
     addForm.classList.add("open");
   });
+  document.getElementById("af-role").addEventListener("input", function(e){
+    if (tplManuallySet) return;
+    document.getElementById("af-template").value = String(suggestTemplate(e.target.value));
+  });
+  document.getElementById("af-template").addEventListener("change", function(){ tplManuallySet = true; });
   document.getElementById("af-cancel").addEventListener("click", function(){ addForm.classList.remove("open"); });
   document.getElementById("af-save").addEventListener("click", async function(){
     var name = document.getElementById("af-name").value.trim();
     var role = document.getElementById("af-role").value.trim();
     var email = document.getElementById("af-email").value.trim();
     var phone = document.getElementById("af-phone").value.trim();
-    var service = Number(document.getElementById("af-service").value);
+    var service = MY_SERVICE_ID;
+    var template = Number(document.getElementById("af-template").value);
     var arrival = dateInputToGrist(document.getElementById("af-arrival").value) || todayUTCSeconds();
     if (!name){ toast("Le nom est obligatoire"); return; }
 
@@ -453,17 +532,18 @@
     btn.disabled = true;
     try{
       var addResult = await grist.docApi.applyUserActions([
-        ["AddRecord", "Members", null, { Name:name, Role:role, Email:email, Phone:phone, Service:service, ArrivalDate:arrival, DepartureDate:null }]
+        ["AddRecord", "Members", null, { Name:name, Role:role, Email:email, Phone:phone, Service:service, Template:template, ArrivalDate:arrival, DepartureDate:null }]
       ]);
       var newId = addResult.retValues[0];
-      var checklistActions = ITEMS.map(function(item){
+      var checklistActions = templateItems(template).map(function(item){
         return ["AddRecord", "MemberChecklist", null, { Member:newId, Item:item.id, Done:false, DoneAt:null }];
       });
       await grist.docApi.applyUserActions(checklistActions);
       await loadAll();
       addForm.classList.remove("open");
+      tplManuallySet = false;
       ["af-name","af-role","af-email","af-phone","af-arrival"].forEach(function(id){ document.getElementById(id).value=""; });
-      renderChips(); renderRows();
+      renderRows();
       toast(name + " a été ajouté·e à l'équipe");
     }catch(err){
       toast("Erreur lors de l'ajout — réessayez");
@@ -490,7 +570,11 @@
     var m = MEMBERS.filter(function(x){ return x.id === id; })[0];
     if (!m) return;
     var svc = serviceById(m.Service) || { Name:"—", Initials:"?", Color:"#9C9B93" };
+    var tpl = templateById(m.Template);
     var prog = progressOf(m.id);
+    var tplOptions = TEMPLATES.map(function(t){
+      return '<option value="' + t.id + '"' + (t.id === m.Template ? " selected" : "") + '>' + t.Name + '</option>';
+    }).join("");
 
     var head = document.getElementById("dossier-head");
     head.innerHTML =
@@ -506,15 +590,55 @@
         '<div class="field"><span class="k">Téléphone</span><span class="v">' + (m.Phone||"—") + '</span></div>' +
         '<div class="field"><span class="k">Arrivée</span><span class="v">' + formatGristDate(m.ArrivalDate) + '</span></div>' +
         '<div class="field"><span class="k">Départ</span><span class="v">' + (m.DepartureDate ? formatGristDate(m.DepartureDate) : "—") + '</span></div>' +
+        '<div class="field" style="align-items:center"><span class="k">Template</span><select id="detail-tpl-select" class="tpl-select" style="width:auto;max-width:150px;text-align:right;color:var(--ink);font-weight:600;">' + tplOptions + '</select></div>' +
       '</div>';
+
+    document.getElementById("detail-tpl-select").addEventListener("change", async function(e){
+      e.target.disabled = true;
+      try{
+        await changeMemberTemplate(m.id, Number(e.target.value));
+        renderDetail(m.id);
+        toast("Template mis à jour");
+      }catch(err){
+        toast("Échec de la mise à jour — réessayez");
+        e.target.disabled = false;
+      }
+    });
 
     var checklistPanel = document.getElementById("panel-checklist");
     checklistPanel.innerHTML =
       '<h3>Suivi de l\'intégration</h3>' +
-      '<p class="panel-sub">Parcours pas-à-pas de découverte des outils La Suite numérique.</p>' +
+      '<p class="panel-sub">Template « ' + (tpl ? tpl.Name : "—") + ' » — parcours pas-à-pas de découverte des outils La Suite numérique.</p>' +
       '<div class="progress-track"><div class="progress-fill" style="width:' + prog.pct + '%"></div></div>' +
-      '<div id="check-list"></div>';
+      '<div id="check-list"></div>' +
+      '<button class="btn ghost" id="btn-add-task" style="margin-top:10px;padding-left:0;">+ Ajouter une tâche pour ' + m.Name.split(" ")[0] + '</button>' +
+      '<div class="add-form" id="add-task-form" style="margin-top:10px;padding:14px;">' +
+        '<div style="margin-bottom:10px;"><label style="display:block;font-size:11.5px;color:var(--ink-faint);margin-bottom:4px;font-weight:600;">Intitulé de la tâche</label>' +
+          '<input id="at-label" type="text" placeholder="Ex. Présenter le dossier X" style="width:100%;padding:8px 10px;border:1px solid var(--line-strong);border-radius:var(--radius-s);background:var(--paper);color:var(--ink);font-size:13px;font-family:inherit;"></div>' +
+        '<div style="margin-bottom:12px;"><label style="display:block;font-size:11.5px;color:var(--ink-faint);margin-bottom:4px;font-weight:600;">Détail (optionnel)</label>' +
+          '<input id="at-desc" type="text" placeholder="Précision utile pour ' + m.Name.split(" ")[0] + '" style="width:100%;padding:8px 10px;border:1px solid var(--line-strong);border-radius:var(--radius-s);background:var(--paper);color:var(--ink);font-size:13px;font-family:inherit;"></div>' +
+        '<div class="add-actions"><button class="btn ghost" id="at-cancel">Annuler</button><button class="btn primary" id="at-save">Ajouter la tâche</button></div>' +
+      '</div>';
     var list = checklistPanel.querySelector("#check-list");
+    var addTaskForm = checklistPanel.querySelector("#add-task-form");
+    checklistPanel.querySelector("#btn-add-task").addEventListener("click", function(){ addTaskForm.classList.add("open"); });
+    checklistPanel.querySelector("#at-cancel").addEventListener("click", function(){ addTaskForm.classList.remove("open"); });
+    checklistPanel.querySelector("#at-save").addEventListener("click", async function(){
+      var label = checklistPanel.querySelector("#at-label").value.trim();
+      var desc = checklistPanel.querySelector("#at-desc").value.trim();
+      if (!label){ toast("L'intitulé est obligatoire"); return; }
+      var btn = checklistPanel.querySelector("#at-save");
+      btn.disabled = true;
+      try{
+        await grist.docApi.applyUserActions([["AddRecord","MemberChecklist", null, { Member:m.id, CustomLabel:label, CustomDescription:desc, Done:false, DoneAt:null, AddedByManager:true }]]);
+        await loadAll();
+        renderDetail(m.id);
+        toast("Tâche ajoutée");
+      }catch(err){
+        toast("Échec de l'enregistrement — réessayez");
+        btn.disabled = false;
+      }
+    });
 
     memberChecklist(m.id).forEach(function(entry){
       var item = entry.item, row = entry.row;
@@ -589,6 +713,53 @@
     });
   }
 
+  /* ---------------- Identité (manager ↔ service, mémorisée localement) ---------------- */
+
+  function loadSavedServiceId(){
+    try{
+      var raw = localStorage.getItem("bals-manager-service-id");
+      return raw ? Number(raw) : null;
+    }catch(e){ return null; }
+  }
+  function saveServiceId(id){
+    try{ localStorage.setItem("bals-manager-service-id", String(id)); }catch(e){}
+  }
+  function clearSavedServiceId(){
+    try{ localStorage.removeItem("bals-manager-service-id"); }catch(e){}
+  }
+
+  function showIdentityGate(){
+    document.getElementById("view-list").style.display = "none";
+    document.getElementById("view-detail").style.display = "none";
+    var gate = document.getElementById("view-identity");
+    var list = document.getElementById("identity-list");
+    var managed = SERVICES.filter(function(s){ return s.Manager && s.Manager.trim() !== ""; });
+    if (!managed.length){
+      list.innerHTML = '<p>Aucun manager n\'est encore renseigné sur les services (table Services, colonne Manager).</p>';
+    } else {
+      list.innerHTML = managed.map(function(s){
+        return '<button class="btn" data-service="' + s.id + '" style="text-align:left;justify-content:flex-start;padding:12px 14px;">' +
+          '<strong>' + s.Manager + '</strong> — ' + s.Name + '</button>';
+      }).join("");
+      list.querySelectorAll("button").forEach(function(b){
+        b.addEventListener("click", function(){
+          MY_SERVICE_ID = Number(b.getAttribute("data-service"));
+          saveServiceId(MY_SERVICE_ID);
+          gate.style.display = "none";
+          document.getElementById("view-list").style.display = "block";
+          renderRows();
+        });
+      });
+    }
+    gate.style.display = "block";
+  }
+
+  document.getElementById("btn-switch-identity").addEventListener("click", function(){
+    clearSavedServiceId();
+    MY_SERVICE_ID = null;
+    showIdentityGate();
+  });
+
   /* ---------------- Init ---------------- */
 
   async function init(){
@@ -597,9 +768,16 @@
       grist.ready({ requiredAccess: "full", name: "Mon équipe" });
       await loadAll();
       document.getElementById("view-loading").style.display = "none";
-      document.getElementById("view-list").style.display = "block";
-      renderChips();
-      renderRows();
+
+      var saved = loadSavedServiceId();
+      var savedServiceValid = saved !== null && SERVICES.some(function(s){ return s.id === saved && s.Manager; });
+      if (savedServiceValid){
+        MY_SERVICE_ID = saved;
+        document.getElementById("view-list").style.display = "block";
+        renderRows();
+      } else {
+        showIdentityGate();
+      }
     }catch(err){
       document.getElementById("view-loading").innerHTML =
         '<strong>Connexion impossible</strong>Vérifiez que ce widget a bien été ouvert depuis une page Grist, avec l\'accès complet au document autorisé.';
